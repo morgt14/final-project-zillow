@@ -7,7 +7,7 @@ _Winter 2019, INFO 201 @ University of Washington_
 
 ### Dataset
 
-We will be working in Zillow’s datasets. Some of their data is calculated by Zillow, such as their valuations of homes. Other data is collected from local governments and real estate companies and agents, such as sale prices. Information about specific houses, such as square footage and number of bedrooms, also come from these different sources (local governments/counties).
+We will be working in Zillow’s datasets. Some of their data is calculated by Zillow, such as their valuations of homes. While Zillow collects some data from their own website, Zillow also collects other data from local governments and real estate companies and agents, such as sale prices. Information about specific houses, such as square footage and number of bedrooms, also come from these different sources (local governments/counties).
 
 ### Target Audience
 
@@ -16,8 +16,9 @@ The target audience for this project will be prospective home buyers and renters
 ### Questions Our Data will Seek to Answer
 Our data will attempt to answer the following questions:
 Which region in a certain place(for example a city/state) has the most suitable price for home buyers/renters?
-How does the list price to sale price ratio of a home vary between different types of homes?
-Is there a correlation between a type of home and the amount of time it is listed before being sold?
+How have the home values of different types of homes changed in recent years?
+What is the relationship between a home's price reduction and the amount of time it remains listed on Zillow?
+
 
 ## Technical Description
 
