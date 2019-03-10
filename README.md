@@ -15,9 +15,10 @@ The target audience for this project will be prospective home buyers and renters
 
 ### Questions Our Data will Seek to Answer
 Our data will attempt to answer the following questions:
-Which region in a certain place(for example a city/state) has the most suitable price for home buyers/renters?
-How have the home values of different types of homes changed in recent years?
-What is the relationship between a home's price reduction and the amount of time it remains listed on Zillow?
+- Which states have the most suitable prices for home buyers?
+- How have the home values of different types of homes changed in recent years?
+- What is the relationship between a home's price reduction and the amount of time it remains listed on Zillow?
+
 
 
 ## Technical Description
