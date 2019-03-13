@@ -14,7 +14,6 @@ library(plotly)
 ############################################################################################
 ######################## Import shooting data into R workspace #############################
 ############################################################################################
-setwd("~/Desktop/INFO201/final-project-zillow")
 State_Price <- read.csv("data/Sale_Prices_State.csv", header = TRUE, stringsAsFactor = FALSE)
 ColNames <- names(State_Price)
 
