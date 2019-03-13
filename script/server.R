@@ -1,57 +1,22 @@
-# Load the shiny, ggplot2, and dplyr libraries
-library("shiny")
 library("ggplot2")
+library("shiny")
 library("dplyr")
 library("tidyr")
+library("stringr")
+library("lubridate")
+library("plotly")
+library("tidyverse")
 
-# You will once again be working with the `diamonds` data set provided by ggplot2
-# Use dplyr's `sample_n()` function to get a random 3000 rows from the data set
-# Store this sample in a variable `diamonds_sample`
+# Read in data from bedroom datasets and store in variables
 one <- read.csv("../data/State_Zhvi_1bedroom.csv")
-two <- read.csv("../data/State_Zhvi_2bedroom.csv") 
+two <- read.csv("../data/State_Zhvi_2bedroom.csv")
 three <- read.csv("../data/State_Zhvi_3bedroom.csv") 
 four <- read.csv("../data/State_Zhvi_4bedroom.csv") 
-five_or_more <- read.csv("../data/State_Zhvi_5bedroomOrMore.csv") 
-# For convenience store the `range()` of values for the `price` column 
-# (of the ENTIRE diamonds dataset)
-price_range <- range(diamonds$price)
+five_or_more <- read.csv("../data/State_Zhvi_5bedroomOrMore.csv")
+days <- read.csv("../data/DaysOnZillow_State_final.csv", stringsAsFactors = FALSE)
+cut <- read.csv("../data/State_MedianPctOfPriceReduction_AllHomes_USE.csv",
+                stringsAsFactors = FALSE)
 
-# For convenience, get a vector of column names from the `diamonds` data set to
-# use as select inputs
-select_values <- sort(one$RegionName)
-
-
-# Define a UI using a `fluidPage()` layout with the following content:
-ui <- fluidPage(
-  
-  # A `titlePanel` with the title "Diamond Viewer"
-  titlePanel("zillow home price"),
-  
-  # A `selectInput()` labeled "select your state". This dropdown should let
-  # the user pick one of the states. 
-  selectInput("state",
-              label = "Select your state",
-              choices = select_values,
-              selected = "Washington"
-  ),
-  
-  # A `checkboxInput()` labeled "compare". It's default value is FALSE
-  checkboxInput("compare", label = strong("Do you want to cpmpare with another state?"), value = FALSE),
-  
-  # A `selectInput()` labeled "select another state". This dropdown should let
-  # the user pick one of the state. 
-  selectInput("state_two",
-              label = "Select another state",
-              choices = select_values
-  ),
-  
-  # A plotOutput showing the 'plot' output (based on the user specifications)
-  plotOutput("plot")
-  
-)
-
-# Define a `server` function (with appropriate arguments)
-# This function should perform the following:
 server <- function(input, output){
   gathered_one <- reactive({
     data <- one %>%
@@ -61,7 +26,6 @@ server <- function(input, output){
     data$year_month <- str_sub(data$year_month, start = 2)
     data$year_month <- gsub("[.]", "-", data$year_month)
     data$year_month <- as.Date(parse_date_time(data$year_month, "Y-m"))
-    
     data #return data
   })
   gathered_two <- reactive({
@@ -155,6 +119,15 @@ server <- function(input, output){
     data$year_month <- as.Date(parse_date_time(data$year_month, "Y-m"))
     data #return data
   })
+  # Manipulate data to use in inputs and outputs
+  select_values <- sort(one$RegionName)
+  all_data <- left_join(cut, days, by = "state")
+  x_axis_lbl <- list(
+    title = "Average Days Listed on Zillow/the market"
+  )
+  y_axis_lbl <- list(
+    title = "Median Price Cut (%) During Time on Market"
+  )
   
   # Assign a reactive `renderPlot()` function to the outputted 'plot' value
   output$plot <- renderPlot({
@@ -172,8 +145,8 @@ server <- function(input, output){
       geom_point(data = gathered_two(), mapping = aes_string(x = "year_month", y = "price"), color = "turquoise2") +
       geom_point(data = gathered_three(), mapping = aes_string(x = "year_month", y = "price"), color = "turquoise3") +
       geom_point(data = gathered_four(), mapping = aes_string(x = "year_month", y = "price"), color = "turquoise4") +
-      geom_point(data = gathered_fiveplus(), mapping = aes_string(x = "year_month", y = "price"), color = "forestgreen")
-      
+      geom_point(data = gathered_fiveplus(), mapping = aes_string(x = "year_month", y = "price"), color = "forestgreen") 
+    
     
     # Finally, if the "trendline" checkbox is selected, you should also include 
     # a geom_smooth geometry (with `se=FALSE`)
@@ -190,8 +163,21 @@ server <- function(input, output){
     
     p # return the plot
   })
+  output$chart <- renderPlotly({
+    chart_1 <- plot_ly(data = all_data, x = ~daysavg2018, y = ~cutavg2018,
+                      text = ~state, type = "scatter" , mode = "markers",
+                      name = "2018") %>% 
+      layout(title = "House's Time on Market and Price Cuts",
+             xaxis = x_axis_lbl,
+             yaxis = y_axis_lbl)
+    if (input$show_2017) {
+      chart_1 <- chart_1 %>%
+        add_trace(x = ~daysavg2017, y = ~cutavg2017, name = "2017")
+    }
+    if(input$show_2016) {
+      chart_1 <- chart_1 %>% 
+        add_trace(x = ~daysavg2016, y = ~cutavg2016, name = "2016")
+    }
+    chart_1
+  })
 }
-
-
-# Create a new `shinyApp()` using the above ui and server
-shinyApp(ui = ui, server = server)

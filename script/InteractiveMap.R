@@ -14,7 +14,7 @@ library(plotly)
 ############################################################################################
 ######################## Import shooting data into R workspace #############################
 ############################################################################################
-State_Price <- read.csv("data/Sale_Prices_State.csv", header = TRUE, stringsAsFactor = FALSE)
+State_Price <- read.csv("../data/Sale_Prices_State.csv", header = TRUE, stringsAsFactors = FALSE)
 ColNames <- names(State_Price)
 
 Mean_2016 <- apply(State_Price[, grepl("2016", ColNames)], 1, mean, na.rm = TRUE)
@@ -32,7 +32,7 @@ State_Price <- data.frame(RegionName = State_Price$RegionName,
 State_Price$Year <- gsub("Mean_", "", State_Price$Year)
 
 
-Coordinates <- read.csv("data/coordinates.csv", header = TRUE, stringsAsFactor = FALSE) %>% 
+Coordinates <- read.csv("../data/coordinates.csv", header = TRUE, stringsAsFactor = FALSE) %>% 
   select(Latitude, Longitude, RegionName)
 
 MapDat <- left_join(State_Price, Coordinates, by = "RegionName")
