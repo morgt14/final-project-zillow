@@ -47,7 +47,7 @@ ui <- fluidPage(
   ),
   
   # A `checkboxInput()` labeled "compare". It's default value is FALSE
-  checkboxInput("compare", label = strong("Do you want to cpmpare with another state?"), value = FALSE),
+  checkboxInput("compare", label = strong("Do you want to compare with another state?"), value = FALSE),
   
   # A `selectInput()` labeled "select another state". This dropdown should let
   # the user pick one of the state. 
