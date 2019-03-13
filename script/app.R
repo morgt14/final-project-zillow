@@ -7,8 +7,7 @@ library("tidyr")
 # You will once again be working with the `diamonds` data set provided by ggplot2
 # Use dplyr's `sample_n()` function to get a random 3000 rows from the data set
 # Store this sample in a variable `diamonds_sample`
-diamonds_sample <- sample_n(diamonds, 1000)
-one <- read.csv("../data/State_Zhvi_1bedroom.csv") 
+one <- read.csv("../data/State_Zhvi_1bedroom.csv")
 two <- read.csv("../data/State_Zhvi_2bedroom.csv") 
 three <- read.csv("../data/State_Zhvi_3bedroom.csv") 
 four <- read.csv("../data/State_Zhvi_4bedroom.csv") 
@@ -60,7 +59,9 @@ server <- function(input, output){
       gather(key = "year_month", value = "price", -1, -2, -3) %>%
       select(year_month, price)
     data$year_month <- str_sub(data$year_month, start = 2)
-    #data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- as.Date(parse_date_time(data$year_month, "Y-m"))
+    
     data #return data
   })
   gathered_two <- reactive({
@@ -69,7 +70,8 @@ server <- function(input, output){
       gather(key = "year_month", value = "price", -1, -2, -3) %>%
       select(year_month, price)
     data$year_month <- str_sub(data$year_month, start = 2)
-    #data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- as.Date(parse_date_time(data$year_month, "Y-m"))
     data #return data
   })
   gathered_three <- reactive({
@@ -78,7 +80,8 @@ server <- function(input, output){
       gather(key = "year_month", value = "price", -1, -2, -3) %>%
       select(year_month, price)
     data$year_month <- str_sub(data$year_month, start = 2)
-    #data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- as.Date(parse_date_time(data$year_month, "Y-m"))
     data #return data
   })
   gathered_four <- reactive({
@@ -87,7 +90,8 @@ server <- function(input, output){
       gather(key = "year_month", value = "price", -1, -2, -3) %>%
       select(year_month, price)
     data$year_month <- str_sub(data$year_month, start = 2)
-    #data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- as.Date(parse_date_time(data$year_month, "Y-m"))
     data #return data
   })
   gathered_fiveplus <- reactive({
@@ -96,7 +100,8 @@ server <- function(input, output){
       gather(key = "year_month", value = "price", -1, -2, -3) %>%
       select(year_month, price)
     data$year_month <- str_sub(data$year_month, start = 2)
-    #data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- as.Date(parse_date_time(data$year_month, "Y-m"))
     data #return data
   })
   
@@ -106,7 +111,8 @@ server <- function(input, output){
       gather(key = "year_month", value = "price", -1, -2, -3) %>%
       select(year_month, price)
     data$year_month <- str_sub(data$year_month, start = 2)
-    #data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- as.Date(parse_date_time(data$year_month, "Y-m"))
     data #return data
   })
   another_two <- reactive({
@@ -115,7 +121,8 @@ server <- function(input, output){
       gather(key = "year_month", value = "price", -1, -2, -3) %>%
       select(year_month, price)
     data$year_month <- str_sub(data$year_month, start = 2)
-    #data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- as.Date(parse_date_time(data$year_month, "Y-m"))
     data #return data
   })
   another_three <- reactive({
@@ -124,7 +131,8 @@ server <- function(input, output){
       gather(key = "year_month", value = "price", -1, -2, -3) %>%
       select(year_month, price)
     data$year_month <- str_sub(data$year_month, start = 2)
-    #data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- as.Date(parse_date_time(data$year_month, "Y-m"))
     data #return data
   })
   another_four <- reactive({
@@ -133,7 +141,8 @@ server <- function(input, output){
       gather(key = "year_month", value = "price", -1, -2, -3) %>%
       select(year_month, price)
     data$year_month <- str_sub(data$year_month, start = 2)
-    #data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- as.Date(parse_date_time(data$year_month, "Y-m"))
     data #return data
   })
   another_fiveplus <- reactive({
@@ -142,7 +151,8 @@ server <- function(input, output){
       gather(key = "year_month", value = "price", -1, -2, -3) %>%
       select(year_month, price)
     data$year_month <- str_sub(data$year_month, start = 2)
-    #data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- gsub("[.]", "-", data$year_month)
+    data$year_month <- as.Date(parse_date_time(data$year_month, "Y-m"))
     data #return data
   })
   
@@ -162,7 +172,7 @@ server <- function(input, output){
       geom_point(data = gathered_two(), mapping = aes_string(x = "year_month", y = "price"), color = "turquoise2") +
       geom_point(data = gathered_three(), mapping = aes_string(x = "year_month", y = "price"), color = "turquoise3") +
       geom_point(data = gathered_four(), mapping = aes_string(x = "year_month", y = "price"), color = "turquoise4") +
-      geom_point(data = gathered_fiveplus(), mapping = aes_string(x = "year_month", y = "price"), color = "forestgreen") 
+      geom_point(data = gathered_fiveplus(), mapping = aes_string(x = "year_month", y = "price"), color = "forestgreen")
       
     
     # Finally, if the "trendline" checkbox is selected, you should also include 
