@@ -1,4 +1,4 @@
-# Load the shiny, ggplot2, and dplyr libraries
+# Load the libraries
 library("shiny")
 library("ggplot2")
 library("dplyr")
@@ -6,67 +6,59 @@ library("tidyr")
 library("lubridate")
 library("stringr")
 
-# You will once again be working with the `diamonds` data set provided by ggplot2
-# Use dplyr's `sample_n()` function to get a random 3000 rows from the data set
-# Store this sample in a variable `diamonds_sample`
+# load csv file 
 one <- read.csv("../data/State_Zhvi_1bedroom.csv")
 two <- read.csv("../data/State_Zhvi_2bedroom.csv") 
 three <- read.csv("../data/State_Zhvi_3bedroom.csv") 
 four <- read.csv("../data/State_Zhvi_4bedroom.csv") 
 five_or_more <- read.csv("../data/State_Zhvi_5bedroomOrMore.csv") 
-# For convenience store the `range()` of values for the `price` column 
-# (of the ENTIRE diamonds dataset)
-price_range <- range(diamonds$price)
 
-# For convenience, get a vector of column names from the `diamonds` data set to
-# use as select inputs
+# sort region name and store 
 select_values <- sort(one$RegionName)
 
 
 # Define a UI using a `fluidPage()` layout with the following content:
 ui <- fluidPage(
   
-  # A `titlePanel` with the title "Diamond Viewer"
+  # title
   titlePanel("zillow home price"),
   
   sidebarLayout(
     sidebarPanel(
-    sliderInput("date_range", 
+      # make a slider input "data range"
+      sliderInput("date_range", 
                 "Choose Date Range:", 
                 min = as.Date("1996-04-01"),
                 max = as.Date("2019-01-01"),
                 value = c(as.Date("1996-04-01"), as.Date("2019-01-01"))
-    ),
-  
-  # A `selectInput()` labeled "select your state". This dropdown should let
-  # the user pick one of the states. 
-  selectInput("state",
-              label = "Select your state",
-              choices = select_values,
-              selected = "Washington"
-  ),
-  
-  # A `checkboxInput()` labeled "compare". It's default value is FALSE
-  checkboxInput("compare", label = strong("Do you want to compare with another state?"), value = FALSE),
-  
-  # A `selectInput()` labeled "select another state". This dropdown should let
-  # the user pick one of the state. 
-  selectInput("state_two",
-              label = "Select another state",
-              choices = select_values)
-    ),
-  mainPanel(
-  
-  # A plotOutput showing the 'plot' output (based on the user specifications)
-  plotOutput("plot")
+                ),
+      # A `selectInput()` labeled "select your state". This dropdown should let
+      # the user pick one of the states. 
+      selectInput("state",
+                  label = "Select your state",
+                  choices = select_values,
+                  selected = "Washington"
+                  ),
+      # A `checkboxInput()` labeled "compare". It's default value is FALSE
+      checkboxInput("compare", label = strong("Do you want to compare with another state?"), value = FALSE),
+      
+      # A `selectInput()` labeled "select another state". This dropdown should let
+      # the user pick one of the state. 
+      selectInput("state_two",
+                  label = "Select another state",
+                  choices = select_values)
+      ),
+    mainPanel(
+      # A plotOutput showing the 'plot' output (based on the user specifications)
+      plotOutput("plot")
+      )
+    )
   )
-  
-)
-)
 
 # Define a `server` function (with appropriate arguments)
 # This function should perform the following:
 server <- function(input, output){
+  # data wrangling
   gathered_one <- reactive({
     data <- one %>%
       filter(RegionName == input$state) %>%
@@ -119,12 +111,14 @@ server <- function(input, output){
     data #return data
   })
   
+  # data combining
   data_combined <- reactive({
     data <- rbind(gathered_one(), gathered_two(), gathered_three(),
                          gathered_four(), gathered_fiveplus())
     data
   })
   
+  # data wrangling
   another_one <- reactive({
     data <- one %>%
       filter(RegionName == input$state_two) %>%
@@ -176,6 +170,7 @@ server <- function(input, output){
     data #return data
   })
   
+  # data combining
   data_combined_compared <- reactive({
     data <- rbind(another_one(), another_two(), another_three(),
                   another_four(), another_fiveplus())
@@ -184,25 +179,14 @@ server <- function(input, output){
   # Assign a reactive `renderPlot()` function to the outputted 'plot' value
   output$plot <- renderPlot({
     
-    # This function should take the `diamonds_sample` data set and filter it by 
-    # the input price (remember to get both ends)!
-    
-    # Use the filtered data set to create a ggplot2 scatter plot with the carat 
-    # on the x-axis, the price on the y-axis, and color based on the clarity. 
-    # Facet the plot based on which feature the user selected to "facet by"
-    #   (hint: you can just pass that string directly to `facet_wrap()`)
-    # Save your plot as a variable.
+    # make a plot
     p <- ggplot(data = data_combined()) +
       geom_point(mapping = aes(x = year_month, y = price, color = bedroom)) + 
       scale_color_brewer()
-    # Finally, if the "trendline" checkbox is selected, you should also include 
-    # a geom_smooth geometry (with `se=FALSE`)
-    # Hint: use an if statement to see if you need to add more geoms to the plot
-    # Be sure and return the completed plot!
+    # Finally, if the "compare" checkbox is selected, adding another graph
     if (input$compare) {
       p <- p + geom_point(data = data_combined_compared(), mapping = aes(x = year_month, y = price), alpha = 0.1) 
     }
-    
     p # return the plot
   })
 }
