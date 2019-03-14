@@ -1,33 +1,38 @@
-library("ggplot2")
 library("shiny")
-library("dplyr")
-library("tidyr")
-library("stringr")
 library("lubridate")
 library("plotly")
-library("tidyverse")
 library("rbokeh")
 library("maps")
+library("ggplot2")
+library("dplyr")
+library("tidyr")
 
 # Read in data from bedroom datasets and store in variables
 one <- read.csv("../data/State_Zhvi_1bedroom.csv")
-two <- read.csv("../data/State_Zhvi_2bedroom.csv") 
-three <- read.csv("../data/State_Zhvi_3bedroom.csv") 
-four <- read.csv("../data/State_Zhvi_4bedroom.csv") 
+two <- read.csv("../data/State_Zhvi_2bedroom.csv")
+three <- read.csv("../data/State_Zhvi_3bedroom.csv")
+four <- read.csv("../data/State_Zhvi_4bedroom.csv")
 five_or_more <- read.csv("../data/State_Zhvi_5bedroomOrMore.csv")
-days <- read.csv("../data/DaysOnZillow_State_final.csv", stringsAsFactors = FALSE)
+days <- read.csv("../data/DaysOnZillow_State_final.csv",
+                 stringsAsFactors = FALSE)
 cut <- read.csv("../data/State_MedianPctOfPriceReduction_AllHomes_USE.csv",
                 stringsAsFactors = FALSE)
-State_Price <- read.csv("../data/Sale_Prices_State.csv", header = TRUE, stringsAsFactors = FALSE)
-Coordinates <- read.csv("../data/coordinates.csv", header = TRUE, stringsAsFactor = FALSE) %>% 
+State_Price <- read.csv("../data/Sale_Prices_State.csv", header = TRUE,
+                         stringsAsFactors = FALSE)
+Coordinates <- read.csv("../data/coordinates.csv", header = TRUE,
+                        stringsAsFactor = FALSE) %>%
   select(Latitude, Longitude, RegionName)
 
 select_values <- sort(one$RegionName)
-state_price <- read.csv("../data/Sale_Prices_State.csv", header = TRUE, stringsAsFactors = FALSE)
+state_price <- read.csv("../data/Sale_Prices_State.csv",
+                        header = TRUE, stringsAsFactors = FALSE)
 colnames <- names(state_price)
-mean_2016 <- apply(state_price[, grepl("2016", colnames)], 1, mean, na.rm = TRUE)
-mean_2017 <- apply(state_price[, grepl("2017", colnames)], 1, mean, na.rm = TRUE)
-mean_2018 <- apply(state_price[, grepl("2018", colnames)], 1, mean, na.rm = TRUE)
+mean_2016 <- apply(
+  state_price[, grepl("2016", colnames)], 1, mean, na.rm = TRUE)
+mean_2017 <- apply(
+  state_price[, grepl("2017", colnames)], 1, mean, na.rm = TRUE)
+mean_2018 <- apply(
+  state_price[, grepl("2018", colnames)], 1, mean, na.rm = TRUE)
 
 # Create a user interface
 ui <- shinyUI(navbarPage(
@@ -100,7 +105,7 @@ ui <- shinyUI(navbarPage(
   sidebarLayout(
     sidebarPanel(
   # A `selectInput()` labeled "select your state". This dropdown should let
-  # the user pick one of the states. 
+  # the user pick one of the states.
       sliderInput("date_range",
                   "Choose Date Range:",
                   min = as.Date("1996-04-01"),
@@ -113,10 +118,12 @@ ui <- shinyUI(navbarPage(
               selected = "Washington"
   ),
   # A `checkboxInput()` labeled "compare". Its default value is FALSE
-  checkboxInput("compare", label = strong("Do you want to compare with another state?"), value = FALSE),
-  
+  checkboxInput("compare",
+                label = strong("Do you want to compare with another state?"),
+                value = FALSE),
+
   # A `selectInput()` labeled "select another state". This dropdown should let
-  # the user pick one of the state. 
+  # the user pick one of the state.
   selectInput("state_two",
               label = "Select another state",
               choices = select_values
@@ -141,6 +148,11 @@ ui <- shinyUI(navbarPage(
           "show_2016",
           label = "Include 2016 data",
           value = FALSE
+        ),
+        numericInput(
+          "point_size",
+          label = "Point size",
+          value = 8
         )
       ),
       mainPanel(
@@ -148,7 +160,7 @@ ui <- shinyUI(navbarPage(
       )
     )
   )
-  
-  
+
+
 )
 )

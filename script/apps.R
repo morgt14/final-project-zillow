@@ -14,6 +14,11 @@ ui <- fluidPage(
         "show_2016",
         label = "Include 2016 data",
         value = FALSE
+      ),
+      numericInput(
+        "point_size",
+        label = "Point size",
+        value = 10
       )
     ),
     mainPanel(
@@ -23,8 +28,8 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
-  days <- read.csv("DaysOnZillow_State_final.csv", stringsAsFactors = FALSE)
-  cut <- read.csv("State_MedianPctOfPriceReduction_AllHomes_USE.csv",
+  days <- read.csv("../data/DaysOnZillow_State_final.csv", stringsAsFactors = FALSE)
+  cut <- read.csv("../data/State_MedianPctOfPriceReduction_AllHomes_USE.csv",
                   stringsAsFactors = FALSE)
   
   all_data <- left_join(cut, days, by = "state")
@@ -37,10 +42,14 @@ server <- function(input, output) {
     title = "Median Price Cut (%) During Time on Market"
   )
   
+  # marker_style <- list(
+  #   size = input$point_size
+  # )
+  
   output$plot <- renderPlotly({
     plot_1 <- plot_ly(data = all_data, x = ~daysavg2018, y = ~cutavg2018,
-                         text = ~state, type = "scatter" , mode = "markers",
-                         name = "2018") %>% 
+                         text = ~state, type = "scatter",
+                         name = "2018", marker = list(size = input$point_size)) %>% 
       layout(title = "House's Time on Market and Price Cuts",
              xaxis = x_axis_lbl,
              yaxis = y_axis_lbl)
