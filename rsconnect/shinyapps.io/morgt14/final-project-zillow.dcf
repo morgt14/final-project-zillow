@@ -1,0 +1,13 @@
+name: final-project-zillow
+title: final-project-zillow
+username:
+account: morgt14
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 788996
+bundleId: 1938603
+url: https://morgt14.shinyapps.io/final-project-zillow/
+when: 1552543505.11038
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: LICENSE|README.md|script/.Rhistory|script/apps.R|script/InteractiveMap.R|script/rsconnect/shinyapps.io/morgt14/script.dcf
