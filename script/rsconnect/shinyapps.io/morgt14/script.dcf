@@ -1,0 +1,13 @@
+name: script
+title: script
+username:
+account: morgt14
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 788980
+bundleId: 1938556
+url: https://morgt14.shinyapps.io/script/
+when: 1552541001.04632
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: apps.R|InteractiveMap.R
