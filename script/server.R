@@ -6,6 +6,8 @@ library("stringr")
 library("lubridate")
 library("plotly")
 library("tidyverse")
+library("rbokeh")
+library("maps")
 
 # Read in data from bedroom datasets and store in variables
 one <- read.csv("../data/State_Zhvi_1bedroom.csv")
@@ -16,51 +18,34 @@ five_or_more <- read.csv("../data/State_Zhvi_5bedroomOrMore.csv")
 days <- read.csv("../data/DaysOnZillow_State_final.csv", stringsAsFactors = FALSE)
 cut <- read.csv("../data/State_MedianPctOfPriceReduction_AllHomes_USE.csv",
                 stringsAsFactors = FALSE)
+state_price <- read.csv("../data/Sale_Prices_State.csv", header = TRUE, stringsAsFactors = FALSE)
+colnames <- names(state_price)
+coordinates <- read.csv("../data/coordinates.csv", header = TRUE, stringsAsFactor = FALSE) %>% 
+  select(Latitude, Longitude, RegionName)
 
-
-# Define a UI using a `fluidPage()` layout with the following content:
-ui <- fluidPage(
-
-  # A `titlePanel` with the title "Diamond Viewer"
-  titlePanel("zillow home price"),
-
-  sidebarLayout(
-    sidebarPanel(
-    sliderInput("date_range",
-                "Choose Date Range:",
-                min = as.Date("1996-04-01"),
-                max = as.Date("2019-01-01"),
-                value = c(as.Date("1996-04-01"), as.Date("2019-01-01"))
-    ),
-
-  # A `selectInput()` labeled "select your state". This dropdown should let
-  # the user pick one of the states.
-  selectInput("state",
-              label = "Select your state",
-              choices = select_values,
-              selected = "Washington"
-  ),
-
-  # A `checkboxInput()` labeled "compare". It's default value is FALSE
-  checkboxInput("compare", label = strong("Do you want to compare with another state?"), value = FALSE),
-
-  # A `selectInput()` labeled "select another state". This dropdown should let
-  # the user pick one of the state.
-  selectInput("state_two",
-              label = "Select another state",
-              choices = select_values)
-    ),
-  mainPanel(
-
-  # A plotOutput showing the 'plot' output (based on the user specifications)
-  plotOutput("plot")
-  )
-
+# Manipulate data to use in inputs and outputs
+all_data <- left_join(cut, days, by = "state")
+x_axis_lbl <- list(
+  title = "Average Days Listed on Zillow/the market"
 )
+y_axis_lbl <- list(
+  title = "Median Price Cut (%) During Time on Market"
 )
+select_values <- sort(one$RegionName)
+colnames <- names(state_price)
+mean_2016 <- apply(state_price[, grepl("2016", colnames)], 1, mean, na.rm = TRUE)
+mean_2017 <- apply(state_price[, grepl("2017", colnames)], 1, mean, na.rm = TRUE)
+mean_2018 <- apply(state_price[, grepl("2018", colnames)], 1, mean, na.rm = TRUE)
+state_price <- data.frame(RegionName = state_price$RegionName, 
+                          mean_2016 = mean_2016, 
+                          mean_2017 = mean_2017, 
+                          mean_2018 = mean_2018) %>% 
+  gather(Year, Avarage_Price, -RegionName)
+state_price$Year <- gsub("mean_", "", state_price$Year)
+mapDat <- left_join(state_price, coordinates, by = "RegionName")
+color <- mapDat %>% group_by(RegionName) %>% summarise(Price = mean(Avarage_Price)) %>% as.data.frame()
 
-# Define a `server` function (with appropriate arguments)
-# This function should perform the following:
+# Create a `server` function
 server <- function(input, output){
   gathered_one <- reactive({
     data <- one %>%
@@ -70,8 +55,7 @@ server <- function(input, output){
       mutate(bedroom = "1")
     data$year_month <- as.Date(parse_date_time(gsub("[.]", "-", str_sub(data$year_month, start = 2)), "Y-m"))
     data <- filter(data, year_month >= as.Date(input$date_range[1]), year_month <= as.Date(input$date_range[2]))
-
-    data #return data
+    data
   })
   gathered_two <- reactive({
     data <- two %>%
@@ -81,7 +65,7 @@ server <- function(input, output){
       mutate(bedroom = "2")
     data$year_month <- as.Date(parse_date_time(gsub("[.]", "-", str_sub(data$year_month, start = 2)), "Y-m"))
     data <- filter(data, year_month >= as.Date(input$date_range[1]), year_month <= as.Date(input$date_range[2]))
-    data #return data
+    data
   })
   gathered_three <- reactive({
     data <- three %>%
@@ -91,7 +75,7 @@ server <- function(input, output){
       mutate(bedroom = "3")
     data$year_month <- as.Date(parse_date_time(gsub("[.]", "-", str_sub(data$year_month, start = 2)), "Y-m"))
     data <- filter(data, year_month >= as.Date(input$date_range[1]), year_month <= as.Date(input$date_range[2]))
-    data #return data
+    data
   })
   gathered_four <- reactive({
     data <- four %>%
@@ -101,7 +85,7 @@ server <- function(input, output){
       mutate(bedroom = "4")
     data$year_month <- as.Date(parse_date_time(gsub("[.]", "-", str_sub(data$year_month, start = 2)), "Y-m"))
     data <- filter(data, year_month >= as.Date(input$date_range[1]), year_month <= as.Date(input$date_range[2]))
-    data #return data
+    data
   })
   gathered_fiveplus <- reactive({
     data <- five_or_more %>%
@@ -111,7 +95,7 @@ server <- function(input, output){
       mutate(bedroom = "5+")
     data$year_month <- as.Date(parse_date_time(gsub("[.]", "-", str_sub(data$year_month, start = 2)), "Y-m"))
     data <- filter(data, year_month >= as.Date(input$date_range[1]), year_month <= as.Date(input$date_range[2]))
-    data #return data
+    data
   })
 
   data_combined <- reactive({
@@ -128,7 +112,7 @@ server <- function(input, output){
       mutate(bedroom = "compared 1")
     data$year_month <- as.Date(parse_date_time(gsub("[.]", "-", str_sub(data$year_month, start = 2)), "Y-m"))
     data <- filter(data, year_month >= as.Date(input$date_range[1]), year_month <= as.Date(input$date_range[2]))
-    data #return data
+    data
   })
   another_two <- reactive({
     data <- two %>%
@@ -138,7 +122,7 @@ server <- function(input, output){
       mutate(bedroom = "compared 2")
     data$year_month <- as.Date(parse_date_time(gsub("[.]", "-", str_sub(data$year_month, start = 2)), "Y-m"))
     data <- filter(data, year_month >= as.Date(input$date_range[1]), year_month <= as.Date(input$date_range[2]))
-    data #return data
+    data
   })
   another_three <- reactive({
     data <- three %>%
@@ -148,7 +132,7 @@ server <- function(input, output){
       mutate(bedroom = "compared 3")
     data$year_month <- as.Date(parse_date_time(gsub("[.]", "-", str_sub(data$year_month, start = 2)), "Y-m"))
     data <- filter(data, year_month >= as.Date(input$date_range[1]), year_month <= as.Date(input$date_range[2]))
-    data #return data
+    data
   })
   another_four <- reactive({
     data <- four %>%
@@ -158,7 +142,7 @@ server <- function(input, output){
       mutate(bedroom = "compared 4")
     data$year_month <- as.Date(parse_date_time(gsub("[.]", "-", str_sub(data$year_month, start = 2)), "Y-m"))
     data <- filter(data, year_month >= as.Date(input$date_range[1]), year_month <= as.Date(input$date_range[2]))
-    data #return data
+    data
   })
   another_fiveplus <- reactive({
     data <- five_or_more %>%
@@ -168,46 +152,39 @@ server <- function(input, output){
       mutate(bedroom = "compared 5+")
     data$year_month <- as.Date(parse_date_time(gsub("[.]", "-", str_sub(data$year_month, start = 2)), "Y-m"))
     data <- filter(data, year_month >= as.Date(input$date_range[1]), year_month <= as.Date(input$date_range[2]))
-    data #return data
+    data
   })
-  # Manipulate data to use in inputs and outputs
-  select_values <- sort(one$RegionName)
-  all_data <- left_join(cut, days, by = "state")
-  x_axis_lbl <- list(
-    title = "Average Days Listed on Zillow/the market"
-  )
-  y_axis_lbl <- list(
-    title = "Median Price Cut (%) During Time on Market"
-  )
+  
 
   data_combined_compared <- reactive({
     data <- rbind(another_one(), another_two(), another_three(),
                   another_four(), another_fiveplus())
     data
   })
+  output$map <- renderPlot({
+    m <- suppressWarnings(figure(width = 800, height = 500, padding_factor = 0, legend_location = "top_left") %>%
+                            ly_map("state") %>%
+                            ly_points(
+                              Longitude, 
+                              Latitude, 
+                              data = mapDat, 
+                              size = 5,
+                              color = Avarage_Price, 
+                              hover = c(RegionName, Year, Avarage_Price)))
+    m
+  })
   # Assign a reactive `renderPlot()` function to the outputted 'plot' value
   output$plot <- renderPlot({
-
-    # This function should take the `diamonds_sample` data set and filter it by
-    # the input price (remember to get both ends)!
-
-    # Use the filtered data set to create a ggplot2 scatter plot with the carat
-    # on the x-axis, the price on the y-axis, and color based on the clarity.
-    # Facet the plot based on which feature the user selected to "facet by"
-    #   (hint: you can just pass that string directly to `facet_wrap()`)
-    # Save your plot as a variable.
     p <- ggplot(data = data_combined()) +
       geom_point(mapping = aes(x = year_month, y = price, color = bedroom)) +
       scale_color_brewer()
-    # Finally, if the "trendline" checkbox is selected, you should also include
-    # a geom_smooth geometry (with `se=FALSE`)
-    # Hint: use an if statement to see if you need to add more geoms to the plot
-    # Be sure and return the completed plot!
+    # Add an if statement that plots data for another state if the
+    # `checkboxInput` is checked
     if (input$compare) {
       p <- p + geom_point(data = data_combined_compared(), mapping = aes(x = year_month, y = price), alpha = 0.1)
     }
 
-    p # return the plot
+    p
   })
   output$chart <- renderPlotly({
     chart_1 <- plot_ly(data = all_data, x = ~daysavg2018, y = ~cutavg2018,
