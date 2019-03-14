@@ -19,7 +19,6 @@ days <- read.csv("../data/DaysOnZillow_State_final.csv", stringsAsFactors = FALS
 cut <- read.csv("../data/State_MedianPctOfPriceReduction_AllHomes_USE.csv",
                 stringsAsFactors = FALSE)
 state_price <- read.csv("../data/Sale_Prices_State.csv", header = TRUE, stringsAsFactors = FALSE)
-colnames <- names(state_price)
 coordinates <- read.csv("../data/coordinates.csv", header = TRUE, stringsAsFactor = FALSE) %>% 
   select(Latitude, Longitude, RegionName)
 
@@ -161,7 +160,7 @@ server <- function(input, output){
                   another_four(), another_fiveplus())
     data
   })
-  output$map <- renderPlot({
+  output$map <- renderRbokeh({
     m <- suppressWarnings(figure(width = 800, height = 500, padding_factor = 0, legend_location = "top_left") %>%
                             ly_map("state") %>%
                             ly_points(

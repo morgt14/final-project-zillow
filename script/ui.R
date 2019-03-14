@@ -58,16 +58,20 @@ ui <- shinyUI(navbarPage(
       allow them to make smarter decisions."),
     h2("Questions to Answer"),
     p("Our project is aimed toward answering the following questions:"),
-    ul(
-       li("Which states have the most suitable prices for home buyers?"),
-       li("How have the home values of different types of homes changed in
-          recent years?"),
-       li("What is the relationship between a home's price reduction and the
-          amount of time it remains listed on Zillow?")),
+    p("- Which states have the most suitable prices for home buyers?"),
+    p("- How have the home values of different types of homes changed in
+      recent years?"),
+    p("- What is the relationship between a home's price reduction and the
+      amount of time it remains listed on Zillow?"),
     h2("Layout"),
     p("The first tab displays an interactive map that shows the average sale
       price of homes by state in the years 2016-2018. The second tab charts the
-      trends of home values over the last")
+      trends of home values over the last two decades based on the number of
+      bedrooms in the house. The final tab charts the possible relationship
+      between the amount of time a house spends listed on Zillow and how much
+      its price falls before being sold."),
+    h2("Creators"),
+    p("Yuki Ono, Morgan Taylor, Grady Thompson, and Jiaxing Wang")
   ),
   tabPanel(
     "Home Values",
@@ -82,7 +86,7 @@ ui <- shinyUI(navbarPage(
                     selected = "2018")
       ),
       mainPanel(
-        plotOutput("map"),
+        rbokehOutput("map"),
         p("Note: Montana, Wyoming and New Mexico did not have data for this
           dataset")
       )
